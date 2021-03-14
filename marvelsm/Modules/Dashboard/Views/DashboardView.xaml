@@ -9,6 +9,7 @@
             VerticalOptions="CenterAndExpand">
             <Label
                 Text="Bem Vindo Marvel SM"
+                TextColor="Black"
                 VerticalOptions="Center"
                 HorizontalOptions="Center" />
         </StackLayout>

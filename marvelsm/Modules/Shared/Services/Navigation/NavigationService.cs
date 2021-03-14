@@ -10,7 +10,6 @@ namespace marvelsm.Modules.Shared.Services.Navigation
 {
     public class NavigationService : INavigationService
     {
-
         protected readonly Dictionary<Type, Type> _mappings;
 
         protected Application CurrentApplication
@@ -25,54 +24,29 @@ namespace marvelsm.Modules.Shared.Services.Navigation
         }
 
         public Task InitializeAsync()
-        {
-            return NavigateToAsync<DashboardViewModel>();
-        }
+            => NavigateToAsync<DashboardViewModel>();
 
         public Task NavigateToAsync<TViewModel>() where TViewModel : BaseViewModel
-        {
-            return InternalNavigateToAsync(typeof(TViewModel), null);
-        }
+            => InternalNavigateToAsync(typeof(TViewModel), null);
 
         public Task NavigateToAsync<TViewModel>(object parameter) where TViewModel : BaseViewModel
-        {
-            return InternalNavigateToAsync(typeof(TViewModel), parameter);
-        }
+            => InternalNavigateToAsync(typeof(TViewModel), parameter);
 
         public Task NavigateToAsync(Type viewModelType)
-        {
-            return InternalNavigateToAsync(viewModelType, null);
-        }
+            => InternalNavigateToAsync(viewModelType, null);
 
         public Task NavigateToAsync(Type viewModelType, object parameter)
-        {
-            return InternalNavigateToAsync(viewModelType, parameter);
-        }
+            => InternalNavigateToAsync(viewModelType, parameter);
 
-        /// <summary>
-        /// NavigationPage 
-        /// </summary>
-        /// <param name="page">Page.</param>
         public void NavPage(Page page)
-        {
-            Application.Current.MainPage = new NavigationPage(page);
-        }
+            => Application.Current.MainPage = new NavigationPage(page);
 
-
-        /// <summary>
-        /// Navega para próxima pagina async
-        /// </summary>
-        /// <param name="page">Page.</param>
         public void NavAsyncPage(Page page)
-        {
-            Device.BeginInvokeOnMainThread(async () =>
+            => Device.BeginInvokeOnMainThread(async () =>
             {
                 await Application.Current.MainPage.Navigation.PushAsync(page);
             });
 
-        }
-
-        //Singleton navigation service
         private static NavigationService instance = null;
         private static readonly object padlock = new object();
 
@@ -83,9 +57,8 @@ namespace marvelsm.Modules.Shared.Services.Navigation
                 lock (padlock)
                 {
                     if (instance == null)
-                    {
                         instance = new NavigationService();
-                    }
+
                     return instance;
                 }
             }
@@ -96,9 +69,7 @@ namespace marvelsm.Modules.Shared.Services.Navigation
             Page page = CreateAndBindPage(viewModelType, parameter);
 
             if (page is DashboardView)
-            {
                 CurrentApplication.MainPage = page;
-            }
             else
             {
                 var nav = CurrentApplication.MainPage as NavigationPage;
@@ -113,27 +84,17 @@ namespace marvelsm.Modules.Shared.Services.Navigation
         protected Type GetPageTypeForViewModel(Type viewModelType)
         {
             if (!_mappings.ContainsKey(viewModelType))
-            {
                 throw new KeyNotFoundException($"não existe mapeamento para ${viewModelType} por isso a navegação não está funcionando, mapeie a view model no método CreatePageViewModelMappings");
-            }
+
             return _mappings[viewModelType];
         }
 
-
-        /// <summary>
-        /// Cria o bind das paginas automaticamente
-        /// </summary>
-        /// <returns>The and bind page.</returns>
-        /// <param name="viewModelType">View model type.</param>
-        /// <param name="parameter">Parameter.</param>
         public Page CreateAndBindPage(Type viewModelType, object parameter)
         {
             Type pageType = GetPageTypeForViewModel(viewModelType);
 
             if (pageType == null)
-            {
                 throw new Exception($"A view model {viewModelType} não esta mapeado para uma page");
-            }
 
             Page page = Activator.CreateInstance(pageType) as Page;
             BaseViewModel viewModel = LocatorViewModel.Instance.Resolve(viewModelType) as BaseViewModel;
